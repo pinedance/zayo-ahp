@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <link href="vendor/bootstrap.min.css" rel="stylesheet" type="text/css"><!--<link href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">-->
+    <style>
+      /* when showing the picture */
+      /*.ng-hide-remove      { animation:0.5s flipInX ease; }*/
+      .section { padding: 0px; }
+    </style>
+    <script type="text/javascript" src="vendor/jquery.min.js"></script><!--<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>-->
+    <script type="text/javascript" src="vendor/underscore-min.js"></script><!--<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>-->
+    <script type="text/javascript" src="js/undermatrix.js"></script>
+
+    <script type="text/javascript" src="vendor/angular.min.js"></script><!--<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>-->
+    <!-- <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script> -->
+    <script type="text/javascript" src="vendor/ui-bootstrap-tpls-1.3.2.min.js"></script><!--<script type="text/javascript" src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-1.3.2.min.js"></script>-->
+    <script type="text/javascript" src="vendor/ng-google-chart.min.js"></script><!--<script type="text/javascript" src="//bouil.github.io/angular-google-chart/ng-google-chart.min.js"></script>-->
+    <script type="text/javascript" src="js/ahp.js"></script>
+
+</head>
+
+<body ng-app="ahp" ng-controller="ahpCtrl">
+
+<div ng-include="'parts/navibar.html'"></div>
+
+<!-- header -->
+<div class="section" ng-include="'parts/header.html'"></div>
+
+
+
+
+<!-- Set Goal, Criterias, and alternatives -->
+<div class="section">
+
+
+  <div class="container">
+
+    <div class="row">
+      <div class="col-xs-12">
+        <form role="form">
+          <div class="form-group">
+            <!--Goal-->
+            <label class="control-label" for="goal">무엇을 결정하고 싶은가요?</label>
+            <input class="form-control" id="goal" placeholder="Enter Your Goal" type="text" ng-model="myGoal">
+          </div>
+          <div class="form-group">
+            <!--Criterias(seperator: ",")-->
+            <label class="control-label" for="criterias">선택에서 무엇이 중요한가요? <small>(콤마로 구분)</small></label>
+            <input class="form-control" id="criterias" placeholder="Enter Your Criterias" type="text" ng-model="myCris">
+          </div>
+          <div class="form-group">
+            <!--Alternatives(seperator: ",")-->
+            <label class="control-label" for="alternatives">가능한 선택지는 무엇인가요? <small>(콤마로 구분)</small></label>
+            <input class="form-control" id="alternatives" placeholder="Enter Your Alternatives" type="text" ng-model="myAlts">
+          </div>
+          <button class="btn btn-info" ng-click="creatWorkSheet()">시작!</button>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+
+</div>
+
+
+
+
+<hr ng-if="showCriWorkSheet" >
+
+
+
+
+<!-- get criterias intensitys and show result -->
+<div class="section" ng-if="showCriWorkSheet">
+
+
+  <div class="container">
+
+    <div class="row">
+      <div class="col-xs-12">
+        <!--Jedge more important criterias-->
+        <!-- <h2>〔기준〕</h2> -->
+        <h4><kbd>기준</kbd> 어떤 기준이 얼만큼 더 중요한가요?</h4>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="container">
+
+    <div class="row" ng-repeat="cri in jgmCris">
+      <p>
+        <div class="col-xs-6">
+          <div class="btn-group">
+            <!-- <button class="btn btn-sm" ng-class="{'btn-warning': !(cri.moreImpFact && cri.intensity), 'btn-success': (cri.moreImpFact && cri.intensity) }"
+                ng-bind="$index + 1"></button> -->
+            <button class="btn btn-sm" ng-class="{'btn-warning': !cri.decided, 'btn-success': cri.decided }"
+                ng-bind="$index + 1"></button>
+            <button class="btn btn-sm" ng-class="{'btn-default': cri.pair[0]!==cri.moreImpFact, 'btn-primary': cri.pair[0]===cri.moreImpFact }"
+                ng-bind="cri.pair[0]" ng-click="judgeFactor( cri, cri.pair[0], cri.pair[1] )"></button>
+            <button class="btn btn-sm" ng-class="{'btn-default': cri.pair[1]!==cri.moreImpFact, 'btn-primary': cri.pair[1]===cri.moreImpFact }"
+                ng-bind="cri.pair[1]" ng-click="judgeFactor( cri, cri.pair[1], cri.pair[0] )"></button>
+          </div>
+        </div>
+        <div class="col-xs-6">
+          <div class="btn-group">
+            <button type="button"  ng-repeat="int in intensitys"
+                class="btn btn-sm" ng-class="{'btn-default': int!==cri.intensity, 'btn-primary': int===cri.intensity }"
+                ng-click="judgeIntens( cri, int )" ng-bind="int"></button>
+          </div>
+        </div>
+      </p>
+    </div>
+
+  </div>
+
+
+
+
+  <div class="container">
+
+    <div class="row">
+      <div class="col-xs-12">
+        <br>
+        <h4>기준에 대한 결과
+          <span><button class="btn btn-success btn-xs" ng-click="reportCris()">확인!</button></span>
+        </h4>
+
+        <div class="row" ng-show="showAlts" id="crisPieChart">
+          <div class="col-xs-12 text-center">
+            <div class="panel" ng-class="{'panel-info': globalCrisIdx.cr <= 10, 'panel-danger': globalCrisIdx.cr > 10}" >
+              <div class="panel-heading">
+                <!-- <h3 class="panel-title">Panel title</h3> -->
+                <h3 class="panel-title" ng-bind="crisMsg"></h3>
+              </div>
+              <div class="panel-body">
+                  <div google-chart chart="crisPieChart"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+      </div>
+    </div>
+
+  </div>
+
+
+</div> <!-- section -->
+
+
+
+<hr ng-if="showAlts" >
+<!-- start judgement alternatives -->
+
+<div class="section" ng-if="showAlts" >
+
+
+  <div class="container ">
+
+    <div class="row">
+      <div class="col-xs-12 ">
+        <ul class="nav nav-tabs">
+          <!-- <li>
+            <a ng-click="setCurrentPage('prev')" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+          </li> -->
+          <li ng-repeat="cri in cris" ng-class="{'active': currentPage==($index + 1)}" >
+            <a ng-bind="cri" ng-click="setCurrentPage($index+1)"></a>
+          </li>
+          <li>
+            <a ng-click="reportAlts()">결과확인</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <br>
+
+
+  <div class="container " ng-repeat="jgmAlt in jgmAlts" ng-show="($index+1)===currentPage">
+  <!-- <div class="container " ng-repeat="jgmAlt in jgmAlts"> -->
+    <div class="row" >
+      <div class="col-xs-12">
+        <h4><kbd ng-bind="jgmAlt.cri"></kbd> 대한 선택은?</h4>
+      </div>
+    </div>
+
+    <div class="row" ng-repeat="alt in jgmAlt.alts">
+      <p>
+      <div class="col-xs-6">
+            <div class="btn-group">
+              <button class="btn btn-sm" ng-class="{'btn-warning': !alt.decided, 'btn-success': alt.decided }"
+                  ng-bind="$index + 1"></button>
+              <button class="btn btn-sm" ng-class="{'btn-default': alt.pair[0]!==alt.moreImpFact, 'btn-primary': alt.pair[0]===alt.moreImpFact }"
+                  ng-bind="alt.pair[0]" ng-click="judgeFactor( alt, alt.pair[0], alt.pair[1] )"></button>
+              <button class="btn btn-sm" ng-class="{'btn-default': alt.pair[1]!==alt.moreImpFact, 'btn-primary': alt.pair[1]===alt.moreImpFact }"
+                  ng-bind="alt.pair[1]" ng-click="judgeFactor( alt, alt.pair[1], alt.pair[0] )"></button>
+            </div>
+      </div>
+      <div class="col-xs-6">
+            <div class="btn-group">
+              <button type="button" ng-repeat="int in intensitys"
+                  class="btn btn-sm" ng-class="{'btn-default': int!==alt.intensity, 'btn-primary': int===alt.intensity }"
+                  ng-click="judgeIntens( alt, int )" ng-bind="int"></button>
+            </div>
+      </div>
+    </p>
+    </div>
+
+  </div>   <!--- container -->
+
+
+<br>
+
+
+
+
+  <div class="container " ng-repeat="localAlt in localAlts" ng-show="($index+1) === currentPage">
+  <!-- <div class="container " ng-show="showRst" ng-repeat="localAlt in localAlts"> -->
+
+    <div class="row" >
+      <div class="col-xs-12" >
+        <div class="panel panel-info" ng-class="{'panel-info': localAlt.idx.cr <= 10, 'panel-danger': localAlt.idx.cr > 10}">
+          <div class="panel-heading">
+            <h3 class="panel-title" ng-bind="localAlt.msg"></h3>
+          </div>
+          <div class="panel-body">
+              <div google-chart chart="localAlt.pieChart"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>   <!--- container -->
+
+
+</div>  <!-- section -->
+<!-- end judgement alternatives -->
+
+
+
+
+<div class="section " ng-show="showRst" id="finalRst">
+<hr>
+  <div class="container ">
+    <div class="row">
+      <div class="col-xs-12" >
+        <div class="panel panel-info">
+          <div class="panel-heading">
+                <h3 class="panel-title" >최후의 속마음은?</h3>
+          </div>
+          <div class="panel-body">
+              <div google-chart chart="globalAltsPieChart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- <div ng-include="'parts/footer.html'"></div> -->
+<script type="text/javascript" src="vendor/bootstrap.min.js"></script><!--<script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>-->
+</body>
+</html>
