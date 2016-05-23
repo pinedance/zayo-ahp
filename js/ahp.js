@@ -16,7 +16,7 @@ app.controller('ahpCtrl', ["$scope", "_", "$uibModal", "$log", "$location", "$an
   var createJugementSpace = function(x){
     return {'pair': x, 'moreImpFact': "", 'lessImpFact': "", 'intensity': 0, 'rationale': "", 'judgementMessage': "  ", 'decided': false}
   }  // more inportant factor
-  var randomConsistencyIndex = [0,0,0,0.58,0.9,1.12,1.24,1.32,1.41,1.45,1.49]
+  var randomConsistencyIndex = [0,0,0,0.58,0.9,1.12,1.24,1.32,1.41,1.45,1.49,1.51,1.48,1.56,1.57,1.59]
   $scope.intensitys = [1,3,5,7,9]
   $scope.myGoal = "점심에 뭘 먹을까?"        //"Choose the best car for the family"
   $scope.myCris = "맛,값,거리"              //"Cost, Safety, Style" // "Cost, Safety, Style, Capacity"
@@ -77,11 +77,11 @@ app.controller('ahpCtrl', ["$scope", "_", "$uibModal", "$log", "$location", "$an
       var outterIx = factor.indexOf( e.pair[0] )
       var innerIx = factor.indexOf( e.pair[1] )
       if( e.pair.indexOf( e.moreImpFact ) === 0){
-        tmpMx[outterIx][innerIx] = e.intensity
+	    tmpMx[outterIx][innerIx] = e.intensity
         tmpMx[innerIx][outterIx] = 1 / e.intensity
       } else {
-        tmpMx[outterIx][innerIx] = 1 / e.intensity
-        tmpMx[innerIx][outterIx] = e.intensity
+		tmpMx[outterIx][innerIx] = 1 / e.intensity
+		tmpMx[innerIx][outterIx] = e.intensity
       }
     })
     return tmpMx
@@ -96,19 +96,27 @@ app.controller('ahpCtrl', ["$scope", "_", "$uibModal", "$log", "$location", "$an
 
   function calculateLambdaMax(factor, judgementData){
     var tmpMx = getJudgementMx(factor, judgementData)
-    var productedMx = _.multiplyMatrix(tmpMx, tmpMx)
-    var rst = _.rate( _.sumRow(productedMx) )
-    var colsumArr = _.sumCol(productedMx)
-    return _.productArrays(rst, colsumArr)
-  }
+	console.log( tmpMx )
+	var colsumArr = _.sumCol( tmpMx )
+	console.log( colsumArr )
+	var inverseColSumArr = _.map( colsumArr, function(e){ return 1/e } )
+
+	var normMx = _.map(tmpMx, function(eArr){
+		return _.eachCalculate(eArr, inverseColSumArr, function(a,b){return a * b} )
+	})
+    var priorityVector = _.rate( _.sumRow( normMx ) )
+	console.log(priorityVector)
+    return _.productArrays(colsumArr, priorityVector)
+  } // http://people.revoledu.com/kardi/tutorial/AHP/Priority%20Vector.htm
 
   function calculateIdn(factor, judgementData){  // Consistency Index
     var n = factor.length
     var lambdaMax = calculateLambdaMax(factor, judgementData)
     var ci = ( lambdaMax - n ) / (n - 1)
-    var cr = ci / randomConsistencyIndex[n]
+    var cr = (n > 2)? ( ci / randomConsistencyIndex[n] ) * 100 : 0
+	console.log ({ "lambdaMax": lambdaMax, "ci": ci, "cr": cr } )
     return { "lambdaMax": lambdaMax, "ci": ci, "cr": cr }
-  }
+} // http://people.revoledu.com/kardi/tutorial/AHP/Consistency.htm
 
   function allDecided( arr ){
     var decided = _.map( arr, function(e){ return ( (e.decided)? 1 : 0 ) } )
@@ -127,7 +135,7 @@ app.controller('ahpCtrl', ["$scope", "_", "$uibModal", "$log", "$location", "$an
       var globalCrisIdx = calculateIdn(myCris, $scope.jgmCris)
 
       // report message
-      var tmpmsg = ( globalCrisIdx.cr <= 10)? "일관된 기준을 가지셨군요!!!" : "마음을 정리하고 다시 해보시는게 좋겠어요"
+      var tmpmsg = ( globalCrisIdx.cr <= 10)? "신뢰할 수 있는 결과입니다." : "신뢰할 수 없는 결과입니다."
       tmpmsg = tmpmsg + " (CR: " + globalCrisIdx.cr.toFixed(2) + " %)"
       $scope.crisMsg = globalCrisIdx.message = createMsg(globalCrisIdx.cr)
 
@@ -190,7 +198,7 @@ app.controller('ahpCtrl', ["$scope", "_", "$uibModal", "$log", "$location", "$an
   }
 
   function createMsg(cr){
-    var tmpmsg = ( cr <= 10)? "일관된 기준을 가지셨군요!!!" : "마음을 정리하고 다시 해보시는게 좋겠어요"
+    var tmpmsg = ( cr <= 10)? "신뢰할 수 있는 결과입니다." : "신뢰할 수 없는 결과입니다."
     tmpmsg += " (CR: " + cr.toFixed(2) + " %)"
     return tmpmsg
   }

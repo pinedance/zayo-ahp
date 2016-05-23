@@ -7,6 +7,12 @@ _.productArrays = function(arr1, arr2){
   return sum
 }
 
+_.eachCalculate = function(arr1, arr2, fn){
+	if(arr1.length !== arr2.length){return []}
+	var newArr = []
+	for(var i=0; i<arr1.length; i++) { newArr.push( fn(arr1[i], arr2[i]) ) }
+	return newArr
+}
 _.selectPair = function(arr){           // ['a', 'b', 'c']  ==> [['a','b'], ['a','c'], ['b','c']]
   if(arr.length < 3 ){ return [arr] }
   var first = _.first(arr)
