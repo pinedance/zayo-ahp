@@ -1,11 +1,11 @@
 
 ![](http://s5.postimg.org/rpxwtq7hj/ahp_App.png)
 
-[app 바로가기](https://pinedance.github.io/zayo-ahp/ahp.html)
+[app 바로가기](http://zayosoft.github.io/spa-ahp-mind-miner/ahp.html)
 
 ### 야호~!
 
-전부터 만들고 싶었던 [ahp app](https://pinedance.github.io/zayo-ahp/ahp.html)을 만들어 보았다. 바로 AHP (Analytic Hierarchy Process)로 결과를 도출해 주는 어플이다. 
+전부터 만들고 싶었던 [ahp app](http://zayosoft.github.io/spa-ahp-mind-miner/ahp.html)을 만들어 보았다. 바로 AHP (Analytic Hierarchy Process)로 결과를 도출해 주는 어플이다. 
 
 AHP는 선택지들을 쌍대비교(pairwise comparison)하여 최종적으로 내가 원하는 것이 무엇인지 찾아가는 결정 방법론 가운데 하나이다. 쌍대비교는 예전에 모 방송국에서 했던 "이상형 월드컵"을 떠올리면 쉽다. 여러개를 한 번에 비교하는 것이 아니라 둘 씩 짝지어 비교하는 것이다. 
 
@@ -45,7 +45,7 @@ app에는 Criterias를 2번째 입력하게 되어 있으니 주의하자.
 
 ### 부탁
 
-사실 AHP를 잘 알고 만든 것은 아니라 걱정이 되기는 하다. 계산 오류 등 app의 문제에 대해서는 [github issue](https://github.com/pinedance/spa/issues)로 알려주면 좋겠다. 
+사실 AHP를 잘 알고 만든 것은 아니라 걱정이 되기는 하다. 계산 오류 등 app의 문제에 대해서는 [github issue](https://github.com/zayosoft/spa-ahp-mind-miner/issues)로 알려주면 좋겠다. 
 
 
 
